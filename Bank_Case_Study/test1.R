@@ -279,14 +279,14 @@ xgb_params <- list(
 # Train the model with 100 boosting rounds
 xgb_model <- xgb.train(
   params = xgb_params,
-  data = dtrain,
+  data = dtrain_selected,
   nrounds = 100,
-  watchlist = list(train = dtrain, test = dtest),
+  watchlist = list(train = dtrain_selected, test = dtest_selected),
   early_stopping_rounds = 10,
   verbose = 1
 )
 
-xgb_probs <- predict(xgb_model, dtest)
+xgb_probs <- predict(xgb_model, dtest_selected)
 
 roc_curve <- roc(test_labels, xgb_probs)  # test_labels = binary {0,1} for "no" and "yes"
 plot(roc_curve, col = "blue", main = "ROC Curve for XGBoost")
@@ -295,7 +295,7 @@ optimal_cutoff <- roc_data["threshold"]
 optimal_cutoff
 
 
-xgb_pred <- ifelse(xgb_probs >= 0.444809, "yes", "no")
+xgb_pred <- ifelse(xgb_probs >= 0.5034099, "yes", "no")
 xgb_pred <- factor(xgb_pred, levels = levels(test_bank$y))
 
 # Compute Confusion Matrix
@@ -329,7 +329,7 @@ roc_data_rf <- coords(roc_curve_rf, "best", ret = c("threshold", "sensitivity", 
 optimal_cutoff_rf <- roc_data_rf["threshold"]
 optimal_cutoff_rf
 
-rf_pred_adjusted <- ifelse(rf_probs[,"yes"]>= 0.495,"yes","no")
+rf_pred_adjusted <- ifelse(rf_probs[,"yes"]>= 0.5125,"yes","no")
 rf_pred_adjusted <- factor(rf_pred_adjusted, levels = levels(test_bank$y))
 conf_matrix_rf_adjusted <- confusionMatrix(rf_pred_adjusted, test_bank$y)
 print(conf_matrix_rf_adjusted)
